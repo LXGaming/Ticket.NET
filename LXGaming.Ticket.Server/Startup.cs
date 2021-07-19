@@ -22,6 +22,7 @@ namespace LXGaming.Ticket.Server {
             services.AddDbContext<StorageContext, MySqlStorageContext>();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers();
+            services.AddHealthChecks();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "LXGaming.Ticket.Server", Version = "v1"}); });
         }
 
@@ -46,6 +47,7 @@ namespace LXGaming.Ticket.Server {
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health").RequireHost("127.0.0.1");
             });
         }
     }
