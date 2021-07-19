@@ -1,3 +1,5 @@
+using LXGaming.Ticket.Server.Storage;
+using LXGaming.Ticket.Server.Storage.MySql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -17,11 +19,16 @@ namespace LXGaming.Ticket.Server {
         }
 
         public void ConfigureServices(IServiceCollection services) {
+            services.AddDbContext<StorageContext, MySqlStorageContext>();
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "LXGaming.Ticket.Server", Version = "v1"}); });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+            using var scope = app.ApplicationServices.CreateScope();
+            using var storageContext = scope.ServiceProvider.GetService<StorageContext>();
+            storageContext?.Database.EnsureCreated();
+
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
