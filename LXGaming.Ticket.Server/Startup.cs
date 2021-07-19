@@ -20,6 +20,7 @@ namespace LXGaming.Ticket.Server {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<StorageContext, MySqlStorageContext>();
+            services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "LXGaming.Ticket.Server", Version = "v1"}); });
         }
