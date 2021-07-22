@@ -23,7 +23,7 @@ namespace LXGaming.Ticket.Server {
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers();
             services.AddHealthChecks();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "LXGaming.Ticket.Server", Version = "v1"}); });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Ticket API", Version = "v1"}); });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
@@ -34,7 +34,7 @@ namespace LXGaming.Ticket.Server {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LXGaming.Ticket.Server v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1"));
             }
 
             app.UseHttpsRedirection();
