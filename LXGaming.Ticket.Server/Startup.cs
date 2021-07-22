@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LXGaming.Ticket.Server.Storage;
 using LXGaming.Ticket.Server.Storage.MySql;
 using Microsoft.AspNetCore.Builder;
@@ -21,7 +23,9 @@ namespace LXGaming.Ticket.Server {
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<StorageContext, MySqlStorageContext>();
             services.AddRouting(options => options.LowercaseUrls = true);
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options => {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            });
             services.AddHealthChecks();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Ticket API", Version = "v1"}); });
         }
