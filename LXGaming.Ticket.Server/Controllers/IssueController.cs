@@ -40,7 +40,7 @@ namespace LXGaming.Ticket.Server.Controllers {
 
         [HttpGet("{id}")]
         [Scope(SecurityConstants.Scopes.IssueRead, SecurityConstants.Scopes.IssueWrite)]
-        public async Task<IActionResult> GetByIdAsync(string projectId, ulong id) {
+        public async Task<IActionResult> GetAsync(string projectId, ulong id) {
             var issue = await _context.Issues
                 .Include(model => model.Comments)
                 .SingleOrDefaultAsync(model => model.Id == id);

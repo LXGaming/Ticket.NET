@@ -31,7 +31,7 @@ namespace LXGaming.Ticket.Server.Controllers {
 
         [HttpGet]
         [Scope(SecurityConstants.Scopes.UserRead, SecurityConstants.Scopes.UserWrite)]
-        public async Task<IActionResult> GetIdByIdentifierAsync(string identifier) {
+        public async Task<IActionResult> GetAsync(string identifier) {
             if (!Toolbox.ParseIdentifier(identifier, out var key, out var value)) {
                 return BadRequest();
             }
@@ -54,7 +54,7 @@ namespace LXGaming.Ticket.Server.Controllers {
 
         [HttpGet("{id}")]
         [Scope(SecurityConstants.Scopes.UserRead, SecurityConstants.Scopes.UserWrite)]
-        public async Task<IActionResult> GetByIdAsync(ulong id) {
+        public async Task<IActionResult> GetAsync(ulong id) {
             var user = await _context.Users
                 .Include(model => model.Identifiers)
                 .Include(model => model.Projects)
