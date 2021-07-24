@@ -7,6 +7,11 @@
             public const string Scope = "scope";
         }
 
+        public static class Policies {
+
+            public const string Scope = "scope";
+        }
+
         public static class Scopes {
 
             // Issue

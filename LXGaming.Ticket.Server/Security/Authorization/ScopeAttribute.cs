@@ -13,7 +13,7 @@ namespace LXGaming.Ticket.Server.Security.Authorization {
 
         private readonly string[] _scopes;
 
-        public ScopeAttribute(params string[] scopes) : base("Policy") {
+        public ScopeAttribute(params string[] scopes) : base(SecurityConstants.Policies.Scope) {
             _scopes = scopes;
         }
 

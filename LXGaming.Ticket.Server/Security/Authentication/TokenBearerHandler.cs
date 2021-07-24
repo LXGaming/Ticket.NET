@@ -42,7 +42,6 @@ namespace LXGaming.Ticket.Server.Security.Authentication {
             }
 
             var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, token.Id.ToString()),
                 new Claim(SecurityConstants.Claims.Scope, token.Scopes)
             };
 

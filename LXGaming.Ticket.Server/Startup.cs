@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LXGaming.Ticket.Server.Security;
 using LXGaming.Ticket.Server.Security.Authentication;
 using LXGaming.Ticket.Server.Storage;
 using LXGaming.Ticket.Server.Storage.MySql;
@@ -24,9 +25,8 @@ namespace LXGaming.Ticket.Server {
         public void ConfigureServices(IServiceCollection services) {
             services.AddAuthentication(TokenBearerDefaults.AuthenticationScheme).AddTokenBearer();
             services.AddAuthorization(options => {
-                options.AddPolicy("Policy", builder => {
-                    builder.AddAuthenticationSchemes(TokenBearerDefaults.AuthenticationScheme);
-                    builder.RequireAuthenticatedUser();
+                options.AddPolicy(SecurityConstants.Policies.Scope, builder => {
+                    builder.RequireClaim(SecurityConstants.Claims.Scope);
                 });
             });
 
