@@ -88,6 +88,10 @@ namespace LXGaming.Ticket.Server.Controllers {
                 return BadRequest("Invalid User");
             }
 
+            if (issue.UserId != user.Id) {
+                issue.Read = false;
+            }
+
             var comment = new IssueComment {
                 Body = form.Body,
                 User = user
