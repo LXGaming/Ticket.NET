@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using LXGaming.Ticket.Server.Security;
 using LXGaming.Ticket.Server.Security.Authentication;
+using LXGaming.Ticket.Server.Services.Event;
 using LXGaming.Ticket.Server.Storage;
 using LXGaming.Ticket.Server.Storage.MySql;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +37,7 @@ namespace LXGaming.Ticket.Server {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             });
             services.AddHealthChecks();
+            services.AddSingleton<EventService>();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Ticket API", Version = "v1"}); });
         }
 

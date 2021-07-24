@@ -5,6 +5,8 @@ using LXGaming.Ticket.Server.Models;
 using LXGaming.Ticket.Server.Models.Form;
 using LXGaming.Ticket.Server.Security;
 using LXGaming.Ticket.Server.Security.Authorization;
+using LXGaming.Ticket.Server.Services.Event;
+using LXGaming.Ticket.Server.Services.Event.Models;
 using LXGaming.Ticket.Server.Storage;
 using LXGaming.Ticket.Server.Util;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +21,12 @@ namespace LXGaming.Ticket.Server.Controllers {
 
         private readonly StorageContext _context;
         private readonly ILogger<UserController> _logger;
+        private readonly EventService _eventService;
 
-        public UserController(StorageContext context, ILogger<UserController> logger) {
+        public UserController(StorageContext context, ILogger<UserController> logger, EventService eventService) {
             _context = context;
             _logger = logger;
+            _eventService = eventService;
         }
 
         [HttpGet]
@@ -146,6 +150,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                 return NotFound();
             }
 
+            var eventArgs = new UserUpdatedEventArgs(user);
+
             var banned = form.Banned ?? user.Banned;
             if (user.Banned != banned) {
                 user.Banned = banned;
@@ -189,6 +195,7 @@ namespace LXGaming.Ticket.Server.Controllers {
             }
 
             await _context.SaveChangesAsync();
+            await _eventService.OnUserUpdatedAsync(eventArgs);
             return NoContent();
         }
     }

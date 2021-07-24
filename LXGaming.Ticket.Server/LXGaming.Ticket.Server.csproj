@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AsyncEvent" Version="0.2.1" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
         <PackageReference Include="Serilog.Sinks.File.Archive" Version="1.0.1" />

@@ -5,6 +5,7 @@ using LXGaming.Ticket.Server.Models;
 using LXGaming.Ticket.Server.Models.Form;
 using LXGaming.Ticket.Server.Security;
 using LXGaming.Ticket.Server.Security.Authorization;
+using LXGaming.Ticket.Server.Services.Event;
 using LXGaming.Ticket.Server.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +17,11 @@ namespace LXGaming.Ticket.Server.Controllers {
     public class IssueCommentController : ControllerBase {
 
         private readonly StorageContext _context;
+        private readonly EventService _eventService;
 
-        public IssueCommentController(StorageContext context) {
+        public IssueCommentController(StorageContext context, EventService eventService) {
             _context = context;
+            _eventService = eventService;
         }
 
         [HttpGet("{id}")]
@@ -79,6 +82,7 @@ namespace LXGaming.Ticket.Server.Controllers {
             issue.Comments.Add(comment);
 
             await _context.SaveChangesAsync();
+            await _eventService.OnIssueCommentCreatedAsync(comment);
 
             return Created($"/projects/{projectId}/issues/{issue.Id}/comments/{comment.Id}", new {
                 Id = comment.Id

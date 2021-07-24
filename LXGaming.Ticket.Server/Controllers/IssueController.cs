@@ -5,6 +5,8 @@ using LXGaming.Ticket.Server.Models;
 using LXGaming.Ticket.Server.Models.Form;
 using LXGaming.Ticket.Server.Security;
 using LXGaming.Ticket.Server.Security.Authorization;
+using LXGaming.Ticket.Server.Services.Event;
+using LXGaming.Ticket.Server.Services.Event.Models;
 using LXGaming.Ticket.Server.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +18,11 @@ namespace LXGaming.Ticket.Server.Controllers {
     public class IssueController : ControllerBase {
 
         private readonly StorageContext _context;
+        private readonly EventService _eventService;
 
-        public IssueController(StorageContext context) {
+        public IssueController(StorageContext context, EventService eventService) {
             _context = context;
+            _eventService = eventService;
         }
 
         [HttpGet]
@@ -99,6 +103,7 @@ namespace LXGaming.Ticket.Server.Controllers {
             _context.Issues.Add(issue);
 
             await _context.SaveChangesAsync();
+            await _eventService.OnIssueCreatedAsync(issue);
 
             return Created($"/projects/{projectId}/issues/{issue.Id}", new {
                 Id = issue.Id
@@ -125,6 +130,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                 return RedirectPermanent($"/projects/{issue.ProjectId}/issues/{issue.Id}");
             }
 
+            var eventArgs = new IssueUpdatedEventArgs(issue);
+
             var status = form.Status ?? issue.Status;
             if (issue.Status != status) {
                 issue.Status = status;
@@ -136,6 +143,7 @@ namespace LXGaming.Ticket.Server.Controllers {
             }
 
             await _context.SaveChangesAsync();
+            await _eventService.OnIssueUpdatedAsync(eventArgs);
             return NoContent();
         }
     }
