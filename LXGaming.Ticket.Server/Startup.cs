@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LXGaming.Ticket.Server.Security.Authentication;
 using LXGaming.Ticket.Server.Storage;
 using LXGaming.Ticket.Server.Storage.MySql;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +22,14 @@ namespace LXGaming.Ticket.Server {
         }
 
         public void ConfigureServices(IServiceCollection services) {
+            services.AddAuthentication(TokenBearerDefaults.AuthenticationScheme).AddTokenBearer();
+            services.AddAuthorization(options => {
+                options.AddPolicy("Policy", builder => {
+                    builder.AddAuthenticationSchemes(TokenBearerDefaults.AuthenticationScheme);
+                    builder.RequireAuthenticatedUser();
+                });
+            });
+
             services.AddDbContext<StorageContext, MySqlStorageContext>();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers().AddJsonOptions(options => {
@@ -47,6 +56,7 @@ namespace LXGaming.Ticket.Server {
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {
