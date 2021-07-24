@@ -27,13 +27,15 @@ namespace LXGaming.Ticket.Server.Controllers {
 
         [HttpGet]
         [Scope(SecurityConstants.Scopes.IssueRead, SecurityConstants.Scopes.IssueWrite)]
-        public async Task<IActionResult> GetAsync(string projectId) {
+        public async Task<IActionResult> GetAsync(string projectId, ulong? creator, IssueStatus? status, bool? read = null) {
             var issues = await _context.Issues
                 .AsQueryable()
                 .Where(model => string.Equals(model.ProjectId, projectId, StringComparison.OrdinalIgnoreCase))
-                .Where(model => model.Status == IssueStatus.Open)
+                .Where(model => creator == null || model.UserId == creator)
+                .Where(model => status == null || model.Status == status)
+                .Where(model => read == null || model.Read == read)
                 .Select(model => model.Id)
-                .ToListAsync();
+                .ToArrayAsync();
 
             return Ok(issues);
         }
