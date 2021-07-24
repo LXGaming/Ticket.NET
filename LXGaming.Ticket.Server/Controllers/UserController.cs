@@ -157,41 +157,45 @@ namespace LXGaming.Ticket.Server.Controllers {
                 user.Banned = banned;
             }
 
-            foreach (var (key, value) in form.Identifiers) {
-                if (user.Identifiers.Any(model => string.Equals(model.IdentifierId, key))) {
-                    _logger.LogWarning("Duplicate identifier: {Identifier}", key);
-                    continue;
-                }
+            if (form.Identifiers != null) {
+                foreach (var (key, value) in form.Identifiers) {
+                    if (user.Identifiers.Any(model => string.Equals(model.IdentifierId, key))) {
+                        _logger.LogWarning("Duplicate identifier: {Identifier}", key);
+                        continue;
+                    }
 
-                if (!await _context.Identifiers.AsQueryable().AnyAsync(model => string.Equals(model.Id, key))) {
-                    _logger.LogWarning("Unsupported identifier: {Identifier}", key);
-                    continue;
-                }
+                    if (!await _context.Identifiers.AsQueryable().AnyAsync(model => string.Equals(model.Id, key))) {
+                        _logger.LogWarning("Unsupported identifier: {Identifier}", key);
+                        continue;
+                    }
 
-                _context.UserIdentifiers.Add(new UserIdentifier {
-                    IdentifierId = key,
-                    Value = value,
-                    User = user
-                });
+                    _context.UserIdentifiers.Add(new UserIdentifier {
+                        IdentifierId = key,
+                        Value = value,
+                        User = user
+                    });
+                }
             }
 
-            foreach (var (key, value) in form.Projects) {
-                var existingProject = user.Projects.SingleOrDefault(model => string.Equals(model.ProjectId, key));
-                if (existingProject != null) {
-                    existingProject.Value = value;
-                    continue;
-                }
+            if (form.Projects != null) {
+                foreach (var (key, value) in form.Projects) {
+                    var existingProject = user.Projects.SingleOrDefault(model => string.Equals(model.ProjectId, key));
+                    if (existingProject != null) {
+                        existingProject.Value = value;
+                        continue;
+                    }
 
-                if (!await _context.Projects.AsQueryable().AnyAsync(model => string.Equals(model.Id, key))) {
-                    _logger.LogWarning("Unsupported identifier: {Identifier}", key);
-                    continue;
-                }
+                    if (!await _context.Projects.AsQueryable().AnyAsync(model => string.Equals(model.Id, key))) {
+                        _logger.LogWarning("Unsupported identifier: {Identifier}", key);
+                        continue;
+                    }
 
-                _context.UserProjects.Add(new UserProject {
-                    ProjectId = key,
-                    Value = value,
-                    User = user
-                });
+                    _context.UserProjects.Add(new UserProject {
+                        ProjectId = key,
+                        Value = value,
+                        User = user
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();
