@@ -24,6 +24,19 @@ namespace LXGaming.Ticket.Server.Controllers {
             _eventService = eventService;
         }
 
+        [HttpGet]
+        [Scope(SecurityConstants.Scopes.IssueCommentRead, SecurityConstants.Scopes.IssueCommentWrite)]
+        public async Task<IActionResult> GetAsync(string projectId, ulong issueId) {
+            var issueComments = await _context.IssueComments
+                .Include(model => model.Issue)
+                .Where(model => model.IssueId == issueId)
+                .Where(model => string.Equals(model.Issue.ProjectId, projectId, StringComparison.OrdinalIgnoreCase))
+                .Select(model => model.Id)
+                .ToArrayAsync();
+
+            return Ok(issueComments);
+        }
+
         [HttpGet("{id}")]
         [Scope(SecurityConstants.Scopes.IssueCommentRead, SecurityConstants.Scopes.IssueCommentWrite)]
         public async Task<IActionResult> GetAsync(string projectId, ulong issueId, ulong id) {
