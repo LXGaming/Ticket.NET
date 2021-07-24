@@ -9,11 +9,11 @@ namespace LXGaming.Ticket.Server.Storage {
 
     public class StorageContext : DbContext {
 
-        public DbSet<ApiToken> ApiTokens { get; init; }
         public DbSet<Identifier> Identifiers { get; init; }
         public DbSet<Issue> Issues { get; init; }
         public DbSet<IssueComment> IssueComments { get; init; }
         public DbSet<Project> Projects { get; init; }
+        public DbSet<Token> Tokens { get; init; }
         public DbSet<User> Users { get; init; }
         public DbSet<UserIdentifier> UserIdentifiers { get; init; }
         public DbSet<UserProject> UserProjects { get; init; }

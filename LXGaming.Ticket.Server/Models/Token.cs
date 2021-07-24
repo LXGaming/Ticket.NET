@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LXGaming.Ticket.Server.Models {
 
-    public class ApiToken {
+    public class Token {
 
         [Key]
         public ulong Id { get; init; }
