@@ -95,7 +95,12 @@ namespace LXGaming.Ticket.Server.Controllers {
                     continue;
                 }
 
-                _context.UserIdentifiers.Add(new UserIdentifier {
+                if (await _context.UserIdentifiers.AsQueryable().AnyAsync(model => string.Equals(model.IdentifierId, key) && string.Equals(model.Value, value))) {
+                    _logger.LogWarning("Duplicate identifier: {Identifier}", key);
+                    continue;
+                }
+
+                user.Identifiers.Add(new UserIdentifier {
                     IdentifierId = key,
                     Value = value,
                     User = user
