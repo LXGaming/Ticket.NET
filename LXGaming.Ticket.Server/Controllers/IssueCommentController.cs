@@ -7,6 +7,7 @@ using LXGaming.Ticket.Server.Security;
 using LXGaming.Ticket.Server.Security.Authorization;
 using LXGaming.Ticket.Server.Services.Event;
 using LXGaming.Ticket.Server.Storage;
+using LXGaming.Ticket.Server.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,38 +28,44 @@ namespace LXGaming.Ticket.Server.Controllers {
         [HttpGet]
         [Scope(SecurityConstants.Scopes.IssueCommentRead, SecurityConstants.Scopes.IssueCommentWrite)]
         public async Task<IActionResult> GetAsync(string projectId, ulong issueId) {
-            var issueComments = await _context.IssueComments
+            var comments = await _context.IssueComments
                 .Include(model => model.Issue)
                 .Where(model => model.IssueId == issueId)
                 .Where(model => string.Equals(model.Issue.ProjectId, projectId, StringComparison.OrdinalIgnoreCase))
                 .Select(model => model.Id)
                 .ToArrayAsync();
 
-            return Ok(issueComments);
+            return Ok(comments);
         }
 
         [HttpGet("{id}")]
         [Scope(SecurityConstants.Scopes.IssueCommentRead, SecurityConstants.Scopes.IssueCommentWrite)]
         public async Task<IActionResult> GetAsync(string projectId, ulong issueId, ulong id) {
-            var issueComment = await _context.IssueComments
+            var comment = await _context.IssueComments
                 .Include(model => model.Issue)
                 .Where(model => model.Id == id)
                 .Where(model => model.IssueId == issueId)
                 .SingleOrDefaultAsync();
-            if (issueComment == null) {
+            if (comment == null) {
                 return NotFound();
             }
 
-            if (!string.Equals(issueComment.Issue.ProjectId, projectId, StringComparison.OrdinalIgnoreCase)) {
-                return RedirectPermanent($"/projects/{issueComment.Issue.ProjectId}/issues/{issueComment.Issue.Id}/comments");
+            if (!string.Equals(comment.Issue.ProjectId, projectId, StringComparison.OrdinalIgnoreCase)) {
+                return RedirectPermanent($"/projects/{comment.Issue.ProjectId}/issues/{comment.Issue.Id}/comments");
             }
 
             return Ok(new {
-                IssueId = issueComment.IssueId,
-                UserId = issueComment.UserId,
-                Body = issueComment.Body,
-                CreatedAt = issueComment.CreatedAt,
-                UpdatedAt = issueComment.UpdatedAt
+                Id = comment.Id,
+                Body = comment.Body,
+                Issue = new {
+                    Id = comment.IssueId
+                },
+                User = new {
+                    Id = comment.User.Id,
+                    Name = comment.User.GetUserNameValue(comment.Issue.ProjectId)
+                },
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt
             });
         }
 
@@ -102,7 +109,17 @@ namespace LXGaming.Ticket.Server.Controllers {
             await _eventService.OnIssueCommentCreatedAsync(comment);
 
             return Created($"/projects/{projectId}/issues/{issue.Id}/comments/{comment.Id}", new {
-                Id = comment.Id
+                Id = comment.Id,
+                Body = comment.Body,
+                Issue = new {
+                    Id = comment.IssueId
+                },
+                User = new {
+                    Id = comment.User.Id,
+                    Name = comment.User.GetUserName(issue.ProjectId)
+                },
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt
             });
         }
     }

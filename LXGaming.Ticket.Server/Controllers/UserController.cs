@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LXGaming.Ticket.Server.Models;
@@ -36,19 +37,25 @@ namespace LXGaming.Ticket.Server.Controllers {
                 return BadRequest();
             }
 
-            var userId = await _context.UserIdentifiers
-                .AsQueryable()
+            var user = await _context.UserIdentifiers
+                .Include(model => model.User)
+                .Include(model => model.User.Identifiers)
+                .Include(model => model.User.Names)
                 .Where(model => string.Equals(model.IdentifierId, key, StringComparison.OrdinalIgnoreCase))
                 .Where(model => string.Equals(model.Value, value, StringComparison.OrdinalIgnoreCase))
-                .Select(model => model.UserId)
+                .Select(model => model.User)
                 .SingleOrDefaultAsync();
-
-            if (userId == 0L) {
+            if (user == null) {
                 return NotFound();
             }
 
             return Ok(new {
-                Id = userId
+                Id = user.Id,
+                Banned = user.Banned,
+                Identifiers = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
+                Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
             });
         }
 
@@ -64,8 +71,9 @@ namespace LXGaming.Ticket.Server.Controllers {
             }
 
             return Ok(new {
+                Id = user.Id,
                 Banned = user.Banned,
-                Identifier = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
+                Identifiers = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
                 Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
@@ -80,12 +88,14 @@ namespace LXGaming.Ticket.Server.Controllers {
             }
 
             var user = new User {
-                Banned = false
+                Banned = false,
+                Identifiers = new List<UserIdentifier>(),
+                Names = new List<UserName>()
             };
             _context.Users.Add(user);
 
             foreach (var (key, value) in form.Identifiers) {
-                if (_context.UserIdentifiers.Local.Any(model => string.Equals(model.IdentifierId, key))) {
+                if (user.Identifiers.Any(model => string.Equals(model.IdentifierId, key))) {
                     _logger.LogWarning("Duplicate identifier: {Identifier}", key);
                     continue;
                 }
@@ -107,12 +117,12 @@ namespace LXGaming.Ticket.Server.Controllers {
                 });
             }
 
-            if (_context.UserIdentifiers.Local.Count == 0) {
+            if (user.Identifiers.Count == 0) {
                 return BadRequest("Missing identifiers");
             }
 
             foreach (var (key, value) in form.Names) {
-                if (_context.UserNames.Local.Any(model => string.Equals(model.ProjectId, key))) {
+                if (user.Names.Any(model => string.Equals(model.ProjectId, key))) {
                     _logger.LogWarning("Duplicate name: {Project}", key);
                     continue;
                 }
@@ -122,21 +132,26 @@ namespace LXGaming.Ticket.Server.Controllers {
                     continue;
                 }
 
-                _context.UserNames.Add(new UserName {
+                user.Names.Add(new UserName {
                     ProjectId = key,
                     Value = value,
                     User = user
                 });
             }
 
-            if (_context.UserNames.Local.Count == 0) {
+            if (user.Names.Count == 0) {
                 return BadRequest("Missing names");
             }
 
             await _context.SaveChangesAsync();
 
             return Created($"/users/{user.Id}", new {
-                Id = user.Id
+                Id = user.Id,
+                Banned = user.Banned,
+                Identifiers = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
+                Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
             });
         }
 
@@ -174,7 +189,12 @@ namespace LXGaming.Ticket.Server.Controllers {
                         continue;
                     }
 
-                    _context.UserIdentifiers.Add(new UserIdentifier {
+                    if (await _context.UserIdentifiers.AsQueryable().AnyAsync(model => string.Equals(model.IdentifierId, key) && string.Equals(model.Value, value))) {
+                        _logger.LogWarning("Duplicate identifier: {Identifier}", key);
+                        continue;
+                    }
+
+                    user.Identifiers.Add(new UserIdentifier {
                         IdentifierId = key,
                         Value = value,
                         User = user
@@ -195,7 +215,7 @@ namespace LXGaming.Ticket.Server.Controllers {
                         continue;
                     }
 
-                    _context.UserNames.Add(new UserName {
+                    user.Names.Add(new UserName {
                         ProjectId = key,
                         Value = value,
                         User = user

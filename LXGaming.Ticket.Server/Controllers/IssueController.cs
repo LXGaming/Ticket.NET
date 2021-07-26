@@ -8,6 +8,7 @@ using LXGaming.Ticket.Server.Security.Authorization;
 using LXGaming.Ticket.Server.Services.Event;
 using LXGaming.Ticket.Server.Services.Event.Models;
 using LXGaming.Ticket.Server.Storage;
+using LXGaming.Ticket.Server.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,6 +46,10 @@ namespace LXGaming.Ticket.Server.Controllers {
         public async Task<IActionResult> GetAsync(string projectId, ulong id) {
             var issue = await _context.Issues
                 .Include(model => model.Comments)
+                .ThenInclude(model => model.User)
+                .ThenInclude(model => model.Names)
+                .Include(model => model.User)
+                .ThenInclude(model => model.Names)
                 .SingleOrDefaultAsync(model => model.Id == id);
             if (issue == null) {
                 return NotFound();
@@ -55,17 +60,28 @@ namespace LXGaming.Ticket.Server.Controllers {
             }
 
             return Ok(new {
-                UserId = issue.UserId,
+                Id = issue.Id,
                 Data = issue.Data,
                 Body = issue.Body,
                 Status = issue.Status,
                 Read = issue.Read,
                 Comments = issue.Comments.Select(comment => new {
-                    UserId = comment.UserId,
+                    Id = comment.Id,
                     Body = comment.Body,
+                    User = new {
+                        Id = comment.User.Id,
+                        Name = comment.User.GetUserNameValue(comment.Issue.ProjectId)
+                    },
                     CreatedAt = comment.CreatedAt,
                     UpdatedAt = comment.UpdatedAt
                 }),
+                Project = new {
+                    Id = issue.ProjectId
+                },
+                User = new {
+                    Id = issue.User.Id,
+                    Name = issue.User.GetUserNameValue(issue.ProjectId)
+                },
                 CreatedAt = issue.CreatedAt,
                 UpdatedAt = issue.UpdatedAt
             });
@@ -108,7 +124,17 @@ namespace LXGaming.Ticket.Server.Controllers {
             await _eventService.OnIssueCreatedAsync(issue);
 
             return Created($"/projects/{projectId}/issues/{issue.Id}", new {
-                Id = issue.Id
+                Id = issue.Id,
+                Data = issue.Data,
+                Body = issue.Body,
+                Status = issue.Status,
+                Read = issue.Read,
+                User = new {
+                    Id = issue.User.Id,
+                    Name = issue.User.GetUserName(issue.ProjectId)
+                },
+                CreatedAt = issue.CreatedAt,
+                UpdatedAt = issue.UpdatedAt
             });
         }
 
