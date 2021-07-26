@@ -2,7 +2,7 @@
 
 namespace LXGaming.Ticket.Server.Models {
 
-    public class UserProject {
+    public class UserName {
 
         [Key]
         public ulong Id { get; init; }

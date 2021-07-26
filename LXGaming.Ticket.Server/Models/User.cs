@@ -20,6 +20,6 @@ namespace LXGaming.Ticket.Server.Models {
 
         public virtual List<UserIdentifier> Identifiers { get; init; }
 
-        public virtual List<UserProject> Projects { get; init; }
+        public virtual List<UserName> Names { get; init; }
     }
 }

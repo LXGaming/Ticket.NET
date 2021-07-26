@@ -57,7 +57,7 @@ namespace LXGaming.Ticket.Server.Controllers {
         public async Task<IActionResult> GetAsync(ulong id) {
             var user = await _context.Users
                 .Include(model => model.Identifiers)
-                .Include(model => model.Projects)
+                .Include(model => model.Names)
                 .SingleOrDefaultAsync(model => model.Id == id);
             if (user == null) {
                 return NotFound();
@@ -66,7 +66,7 @@ namespace LXGaming.Ticket.Server.Controllers {
             return Ok(new {
                 Banned = user.Banned,
                 Identifier = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
-                Projects = user.Projects.ToDictionary(model => model.ProjectId, model => model.Value),
+                Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             });
@@ -106,9 +106,9 @@ namespace LXGaming.Ticket.Server.Controllers {
                 return BadRequest("Missing identifiers");
             }
 
-            foreach (var (key, value) in form.Projects) {
-                if (_context.UserProjects.Local.Any(model => string.Equals(model.ProjectId, key))) {
-                    _logger.LogWarning("Duplicate project: {Project}", key);
+            foreach (var (key, value) in form.Names) {
+                if (_context.UserNames.Local.Any(model => string.Equals(model.ProjectId, key))) {
+                    _logger.LogWarning("Duplicate name: {Project}", key);
                     continue;
                 }
 
@@ -117,15 +117,15 @@ namespace LXGaming.Ticket.Server.Controllers {
                     continue;
                 }
 
-                _context.UserProjects.Add(new UserProject {
+                _context.UserNames.Add(new UserName {
                     ProjectId = key,
                     Value = value,
                     User = user
                 });
             }
 
-            if (_context.UserProjects.Local.Count == 0) {
-                return BadRequest("Missing projects");
+            if (_context.UserNames.Local.Count == 0) {
+                return BadRequest("Missing names");
             }
 
             await _context.SaveChangesAsync();
@@ -144,7 +144,7 @@ namespace LXGaming.Ticket.Server.Controllers {
 
             var user = await _context.Users
                 .Include(model => model.Identifiers)
-                .Include(model => model.Projects)
+                .Include(model => model.Names)
                 .SingleOrDefaultAsync(model => model.Id == id);
             if (user == null) {
                 return NotFound();
@@ -177,9 +177,9 @@ namespace LXGaming.Ticket.Server.Controllers {
                 }
             }
 
-            if (form.Projects != null) {
-                foreach (var (key, value) in form.Projects) {
-                    var existingProject = user.Projects.SingleOrDefault(model => string.Equals(model.ProjectId, key));
+            if (form.Names != null) {
+                foreach (var (key, value) in form.Names) {
+                    var existingProject = user.Names.SingleOrDefault(model => string.Equals(model.ProjectId, key));
                     if (existingProject != null) {
                         existingProject.Value = value;
                         continue;
@@ -190,7 +190,7 @@ namespace LXGaming.Ticket.Server.Controllers {
                         continue;
                     }
 
-                    _context.UserProjects.Add(new UserProject {
+                    _context.UserNames.Add(new UserName {
                         ProjectId = key,
                         Value = value,
                         User = user

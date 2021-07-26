@@ -82,7 +82,7 @@ namespace LXGaming.Ticket.Server.Controllers {
 
             var user = await _context.Users
                 .Include(model => model.Identifiers)
-                .Include(model => model.Projects)
+                .Include(model => model.Names)
                 .SingleOrDefaultAsync(model => model.Id == form.UserId);
             if (user == null) {
                 return BadRequest("Invalid User");

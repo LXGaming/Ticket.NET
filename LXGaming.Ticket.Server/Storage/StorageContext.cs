@@ -16,7 +16,7 @@ namespace LXGaming.Ticket.Server.Storage {
         public DbSet<Token> Tokens { get; init; }
         public DbSet<User> Users { get; init; }
         public DbSet<UserIdentifier> UserIdentifiers { get; init; }
-        public DbSet<UserProject> UserProjects { get; init; }
+        public DbSet<UserName> UserNames { get; init; }
 
         protected StorageContext() {
         }
@@ -28,7 +28,7 @@ namespace LXGaming.Ticket.Server.Storage {
             modelBuilder.Entity<Issue>().Property(model => model.Status).HasConversion<string>();
             modelBuilder.Entity<UserIdentifier>().HasIndex(model => new {model.IdentifierId, model.UserId}).IsUnique();
             modelBuilder.Entity<UserIdentifier>().HasIndex(model => new {model.IdentifierId, model.Value}).IsUnique();
-            modelBuilder.Entity<UserProject>().HasIndex(model => new {model.ProjectId, model.UserId}).IsUnique();
+            modelBuilder.Entity<UserName>().HasIndex(model => new {model.ProjectId, model.UserId}).IsUnique();
 
             // Defaults
             modelBuilder.Entity<Project>().HasData(

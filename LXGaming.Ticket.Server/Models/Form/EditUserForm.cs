@@ -8,6 +8,6 @@ namespace LXGaming.Ticket.Server.Models.Form {
 
         public Dictionary<string, string> Identifiers { get; init; }
 
-        public Dictionary<string, string> Projects { get; init; }
+        public Dictionary<string, string> Names { get; init; }
     }
 }
