@@ -4,10 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using LXGaming.Ticket.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LXGaming.Ticket.Server.Storage {
 
     public class StorageContext : DbContext {
+
+        private static readonly ValueConverter<DateTime, DateTime> DateTimeConverter = new(
+            value => value,
+            value => DateTime.SpecifyKind(value, DateTimeKind.Local));
 
         public DbSet<Identifier> Identifiers { get; init; }
         public DbSet<Issue> Issues { get; init; }
@@ -23,6 +28,8 @@ namespace LXGaming.Ticket.Server.Storage {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
+
+            ApplyDateTimeConverter(modelBuilder);
 
             // Fixes
             modelBuilder.Entity<Issue>().Property(model => model.Status).HasConversion<string>();
@@ -68,6 +75,16 @@ namespace LXGaming.Ticket.Server.Storage {
                 var updatedAt = entity.Properties.SingleOrDefault(entry => entry.Metadata.Name.Equals("UpdatedAt"));
                 if (updatedAt != null && (entity.State == EntityState.Added || entity.State == EntityState.Modified)) {
                     updatedAt.CurrentValue = now;
+                }
+            }
+        }
+
+        private void ApplyDateTimeConverter(ModelBuilder modelBuilder) {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes()) {
+                foreach (var property in entityType.GetProperties()) {
+                    if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?)) {
+                        property.SetValueConverter(DateTimeConverter);
+                    }
                 }
             }
         }
