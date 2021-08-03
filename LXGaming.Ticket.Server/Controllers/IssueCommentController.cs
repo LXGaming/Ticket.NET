@@ -60,10 +60,7 @@ namespace LXGaming.Ticket.Server.Controllers {
                 Issue = new {
                     Id = comment.IssueId
                 },
-                User = new {
-                    Id = comment.User.Id,
-                    Name = comment.User.GetUserNameValue(comment.Issue.ProjectId)
-                },
+                User = comment.GetUser(),
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt
             });
@@ -115,10 +112,7 @@ namespace LXGaming.Ticket.Server.Controllers {
                 Issue = new {
                     Id = comment.IssueId
                 },
-                User = new {
-                    Id = comment.User.Id,
-                    Name = comment.User.GetUserName(issue.ProjectId)
-                },
+                User = comment.GetUser(),
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt
             });

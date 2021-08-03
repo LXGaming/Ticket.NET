@@ -52,8 +52,8 @@ namespace LXGaming.Ticket.Server.Controllers {
             return Ok(new {
                 Id = user.Id,
                 Banned = user.Banned,
-                Identifiers = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
-                Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
+                Identifiers = user.GetIdentifiers(),
+                Names = user.GetNames(),
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             });
@@ -73,8 +73,8 @@ namespace LXGaming.Ticket.Server.Controllers {
             return Ok(new {
                 Id = user.Id,
                 Banned = user.Banned,
-                Identifiers = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
-                Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
+                Identifiers = user.GetIdentifiers(),
+                Names = user.GetNames(),
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             });
@@ -148,8 +148,8 @@ namespace LXGaming.Ticket.Server.Controllers {
             return Created($"/users/{user.Id}", new {
                 Id = user.Id,
                 Banned = user.Banned,
-                Identifiers = user.Identifiers.ToDictionary(model => model.IdentifierId, model => model.Value),
-                Names = user.Names.ToDictionary(model => model.ProjectId, model => model.Value),
+                Identifiers = user.GetIdentifiers(),
+                Names = user.GetNames(),
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             });
