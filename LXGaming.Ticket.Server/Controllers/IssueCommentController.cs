@@ -61,8 +61,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                     Id = comment.IssueId
                 },
                 User = comment.GetUser(),
-                CreatedAt = comment.CreatedAt,
-                UpdatedAt = comment.UpdatedAt
+                CreatedAt = comment.GetCreatedAtUtc(),
+                UpdatedAt = comment.GetUpdatedAtUtc()
             });
         }
 
@@ -113,8 +113,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                     Id = comment.IssueId
                 },
                 User = comment.GetUser(),
-                CreatedAt = comment.CreatedAt,
-                UpdatedAt = comment.UpdatedAt
+                CreatedAt = comment.GetCreatedAtUtc(),
+                UpdatedAt = comment.GetUpdatedAtUtc()
             });
         }
     }

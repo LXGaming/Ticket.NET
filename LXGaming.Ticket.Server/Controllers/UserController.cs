@@ -54,8 +54,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                 Banned = user.Banned,
                 Identifiers = user.GetIdentifiers(),
                 Names = user.GetNames(),
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                CreatedAt = user.GetCreatedAtUtc(),
+                UpdatedAt = user.GetUpdatedAtUtc()
             });
         }
 
@@ -75,8 +75,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                 Banned = user.Banned,
                 Identifiers = user.GetIdentifiers(),
                 Names = user.GetNames(),
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                CreatedAt = user.GetCreatedAtUtc(),
+                UpdatedAt = user.GetUpdatedAtUtc()
             });
         }
 
@@ -150,8 +150,8 @@ namespace LXGaming.Ticket.Server.Controllers {
                 Banned = user.Banned,
                 Identifiers = user.GetIdentifiers(),
                 Names = user.GetNames(),
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                CreatedAt = user.GetCreatedAtUtc(),
+                UpdatedAt = user.GetUpdatedAtUtc()
             });
         }
 
