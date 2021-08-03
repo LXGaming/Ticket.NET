@@ -104,6 +104,7 @@ namespace LXGaming.Ticket.Server.Controllers {
                 User = user
             };
             issue.Comments.Add(comment);
+            issue.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             await _eventService.OnIssueCommentCreatedAsync(comment);
